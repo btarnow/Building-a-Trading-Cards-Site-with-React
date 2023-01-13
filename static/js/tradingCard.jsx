@@ -72,8 +72,15 @@ function TradingCardContainer() {
   // the setCards function that we use to change cards
   const [cards, setCards] = React.useState([])
   
-  // Fetching card data from server.py, data is being passed into setCards 
-  // on line 81
+  function addCard(newCard) {
+    // [...cards] makes a copy of cards. 
+    const currentCards = [...cards];
+    // [...currentCards, newCard] is an array containing all elements of cards 
+    // we have and adding our new card to the array
+    setCards([...currentCards, newCard]);
+  }
+
+  // Fetching card data from server.py, data is being passed into setCards above
   // If we don't add [], it will be an infinite loop
   // [] says only run .useEffect if whatever is in the array changes 
   // "Run only on the first render, but don't do it again"
@@ -112,7 +119,7 @@ function TradingCardContainer() {
 
   return (
     <React.Fragment>
-      <AddTradingCard />
+      <AddTradingCard addCard={addCard}/>
       <h2>Trading Cards</h2>
       <div className="grid">{tradingCards}</div>
     </React.Fragment>
@@ -130,6 +137,7 @@ function AddTradingCard(props) {
   const [skill, setSkill] = React.useState("");
   
   function addNewCard() {
+    
     fetch("/add-card", {
       method: "POST",
       headers: {
@@ -139,6 +147,10 @@ function AddTradingCard(props) {
     })
     .then((response) => response.json())
     .then((jsonResponse) => {
+      const cardAdded = jsonResponse.cardAdded;
+     // we can only use addCard here because we're calling it with props, even 
+     // though it's defined within another function
+      props.addCard(cardAdded)
       alert(`Card added! Response: ${jsonResponse.cardAdded.name}`)
     });
   }
